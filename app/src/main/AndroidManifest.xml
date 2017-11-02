@@ -9,21 +9,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-
-        </activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".SigninActivity" />
-        <activity android:name=".FriendListActivity" />
         <activity
             android:name=".RoomListActivity"
             android:label="@string/title_activity_room_list"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".FriendListActivity"
+            android:label="@string/title_activity_friend_list"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".RoomActivity"></activity>
     </application>
 
 </manifest>

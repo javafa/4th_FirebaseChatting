@@ -7,12 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 public class RoomListActivity extends AppCompatActivity {
 
-    // 방생성 팝업 레이아웃
-    FrameLayout popup;
-    // 방생성 버튼
+    // 방 생성 팝업 레이아웃
+    RelativeLayout popup;
+    // 방 생성 버튼
     FloatingActionButton fab;
 
     @Override
