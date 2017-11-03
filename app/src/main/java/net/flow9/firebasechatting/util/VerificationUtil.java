@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
 
 public class VerificationUtil {
 
+    // verification : 절차(과정)의 정상적으로 진행되었는지를 검사
+    // validation   : 요구사항에 맞도록 정상적으로 동작하는지 확인
+    //                값을 검사할 때는 validation 이 맞을거 같음....
+
     /**
      * 패스워드 검증하기
      * @param password

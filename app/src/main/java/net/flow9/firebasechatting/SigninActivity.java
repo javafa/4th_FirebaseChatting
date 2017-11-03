@@ -32,44 +32,59 @@ public class SigninActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signin);
         // 파이어베이스 모듈 사용하기
         auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        // 데이터베이스 user 레퍼런스 생성
-        userRef = database.getReference("user");
-        initView();
+        if(PreferenceUtil.getString(this,"auto_sign").equals("true")){
+            String email = PreferenceUtil.getString(this,"email");
+            String password = PreferenceUtil.getString(this,"password");
+            signin(email, password);
+        }else {
+            setContentView(R.layout.activity_signin);
+
+            database = FirebaseDatabase.getInstance();
+            // 데이터베이스 user 레퍼런스 생성
+            userRef = database.getReference("user");
+            initView();
+        }
+    }
+
+    private void signin(final String email, final String password){
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful()){
+                    FirebaseUser fUser = auth.getCurrentUser();
+                    if(fUser.isEmailVerified()){
+                        // preference에 값을 저장
+                        PreferenceUtil.setValue(getBaseContext(), "user_id",fUser.getUid());
+                        PreferenceUtil.setValue(getBaseContext(), "email",  email);
+                        PreferenceUtil.setValue(getBaseContext(), "password",password);
+                        PreferenceUtil.setValue(getBaseContext(), "auto_sign","true");
+
+                        // 로그인진행
+                        Intent intent = new Intent(SigninActivity.this, RoomListActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        DialogUtil.showDialog("이메일을 확인하셔야 합니다!",SigninActivity.this, false);
+                    }
+                }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception e) {
+            DialogUtil.showDialog("오류발생:"+e.getMessage(),SigninActivity.this, false);
+            }
+        });
     }
 
     public void signin(View view) {
         String email = editEmail.getText().toString();
         String password = editPassword.getText().toString();
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(task.isSuccessful()){
-                        FirebaseUser fUser = auth.getCurrentUser();
-                        if(fUser.isEmailVerified()){
-                            // preference에 값을 저장
-                            PreferenceUtil.setValue(getBaseContext(), "user_id",fUser.getUid());
-
-                            // 로그인진행
-                            Intent intent = new Intent(SigninActivity.this, RoomListActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }else{
-                            DialogUtil.showDialog("이메일을 확인하셔야 합니다!",SigninActivity.this, false);
-                        }
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    DialogUtil.showDialog("오류발생:"+e.getMessage(),SigninActivity.this, false);
-                }
-            });
+        signin(email, password);
     }
+
 
     public void signup(View view) {
         Intent intent = new Intent(this, SignupActivity.class);

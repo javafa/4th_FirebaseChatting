@@ -1,5 +1,9 @@
 package net.flow9.firebasechatting.model;
 
+import android.widget.TextView;
+
+import java.util.List;
+
 /**
  * Created by pc on 11/3/2017.
  */
@@ -11,4 +15,15 @@ public class Room {
     public long last_msg_time;
     public long msg_count;
     public long creation_time;
+    public List<User> member;
+
+    public String getFriendString() {
+        String friendString = "";
+        if(member != null && member.size() > 0) {
+            for (User friend : member) {
+                friendString += ", " + friend.email;
+            }
+        }
+        return friendString;
+    }
 }
