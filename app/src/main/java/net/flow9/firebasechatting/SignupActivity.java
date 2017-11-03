@@ -1,17 +1,36 @@
 package net.flow9.firebasechatting;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import net.flow9.firebasechatting.model.User;
 import net.flow9.firebasechatting.util.VerificationUtil;
 
 public class SignupActivity extends AppCompatActivity {
+
+    FirebaseAuth auth;
+    FirebaseDatabase database;
+    DatabaseReference userRef;
 
     private EditText editEmail;
     private EditText editPassword;
@@ -26,38 +45,69 @@ public class SignupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        // 파이어베이스 모듈 사용하기
+        auth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        // 데이터베이스 user 레퍼런스 생성
+        userRef = database.getReference("user");
+
         initView();
     }
     // 등록처리
     public void signup(View view){
-        String email = editEmail.getText().toString();
-        String password = editPassword.getText().toString();
-        String password_re = editPasswordRe.getText().toString();
-        String name = editName.getText().toString();
-        String phone = editPhone.getText().toString();
-        String birthday = editBirthday.getText().toString();
+        final String email = editEmail.getText().toString();
+        final String password = editPassword.getText().toString();
+        final String name = editName.getText().toString();
+        final String phone = editPhone.getText().toString();
+        final String birthday = editBirthday.getText().toString();
         int selectedId = gender.getCheckedRadioButtonId();
-        String gender = selectedId == R.id.radioMale ? "Male" : "Female";
+        final String gender = selectedId == R.id.radioMale ? "Male" : "Female";
 
-        if(email == null || !VerificationUtil.isValidEmail(email)){
-
-            return;
-        }
-
-        if(password == null || !VerificationUtil.isValidPassword(password)){
-
-            return;
-        }
-
-        if(!password.equals(password_re)){
-
-            return;
-        }
-
-        if(name == null || !VerificationUtil.isValidName(name)){
-
-            return;
-        }
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if(task.isSuccessful()){
+                        // 1. 정상등록시 안내 메일 발송
+                        FirebaseUser fUser = auth.getCurrentUser();
+                        fUser.sendEmailVerification()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SignupActivity.this);
+                                    dialogBuilder.setTitle("Notice");
+                                    dialogBuilder.setMessage("이메일을 발송하였습니다. 확인해주세요!");
+                                    dialogBuilder.setCancelable(false);
+                                    dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            dialogInterface.dismiss();
+                                            finish();
+                                        }
+                                    });
+                                    AlertDialog dialog = dialogBuilder.create();
+                                    dialog.show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    //
+                                }
+                        });
+                        // 2. 사용자 등록
+                        User user = new User(fUser.getUid(), name, email, "", birthday, gender, phone);
+                        userRef.child(fUser.getUid()).setValue(user);
+                    }else{
+                        Log.e("Auth","creation is not success");
+                    }
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("Auth",e.getMessage());
+                }
+            });
     }
 
     boolean checkEmail = false;
