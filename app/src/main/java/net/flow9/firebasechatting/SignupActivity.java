@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import net.flow9.firebasechatting.model.User;
+import net.flow9.firebasechatting.util.DialogUtil;
 import net.flow9.firebasechatting.util.VerificationUtil;
 
 public class SignupActivity extends AppCompatActivity {
@@ -74,41 +75,29 @@ public class SignupActivity extends AppCompatActivity {
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SignupActivity.this);
-                                    dialogBuilder.setTitle("Notice");
-                                    dialogBuilder.setMessage("이메일을 발송하였습니다. 확인해주세요!");
-                                    dialogBuilder.setCancelable(false);
-                                    dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            dialogInterface.dismiss();
-                                            finish();
-                                        }
-                                    });
-                                    AlertDialog dialog = dialogBuilder.create();
-                                    dialog.show();
+                                    DialogUtil.showDialog("이메일을 발송하였습니다. 확인해주세요!",SignupActivity.this, true);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    //
+                                    DialogUtil.showDialog("오류발생:"+e.getMessage(),SignupActivity.this, false);
                                 }
                         });
                         // 2. 사용자 등록
                         User user = new User(fUser.getUid(), name, email, "", birthday, gender, phone);
                         userRef.child(fUser.getUid()).setValue(user);
-                    }else{
-                        Log.e("Auth","creation is not success");
                     }
                 }
             })
             .addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.e("Auth",e.getMessage());
+                    DialogUtil.showDialog("오류발생:"+e.getMessage(),SignupActivity.this, false);
                 }
             });
     }
+
+
 
     boolean checkEmail = false;
     boolean checkPassword = false;
@@ -195,12 +184,9 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-        editPhone = (EditText) findViewById(R.id.editPhone);
-        editBirthday = (EditText) findViewById(R.id.editBirthday);
-        gender = (RadioGroup) findViewById(R.id.gender);
+        editPhone = findViewById(R.id.editPhone);
+        editBirthday = findViewById(R.id.editBirthday);
+        gender = findViewById(R.id.gender);
         btnSignup = findViewById(R.id.btnSignup);
     }
 }
