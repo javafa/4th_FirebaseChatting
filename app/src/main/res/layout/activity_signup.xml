@@ -56,7 +56,7 @@
         android:layout_marginTop="24dp"
         android:text="Additional Info."
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editPasswordRe" />
+        app:layout_constraintTop_toBottomOf="@+id/editName" />
 
     <EditText
         android:id="@+id/editName"
@@ -70,7 +70,7 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/editPasswordRe" />
 
     <EditText
         android:id="@+id/editPhone"
@@ -84,7 +84,7 @@
         android:inputType="phone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editName" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <EditText
         android:id="@+id/editBirthday"
@@ -102,10 +102,12 @@
         app:layout_constraintTop_toBottomOf="@+id/editPhone" />
 
     <RadioGroup
+        android:id="@+id/gender"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:checkedButton="@+id/radioMale"
         android:orientation="horizontal"
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -128,12 +130,13 @@
     </RadioGroup>
 
     <Button
-        android:id="@+id/button7"
+        android:id="@+id/btnSignup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:enabled="false"
         android:onClick="signup"
         android:text="Sign up"
         app:layout_constraintBottom_toBottomOf="parent"
