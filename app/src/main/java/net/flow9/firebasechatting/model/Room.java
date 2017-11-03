@@ -2,12 +2,12 @@ package net.flow9.firebasechatting.model;
 
 import android.widget.TextView;
 
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.List;
 
-/**
- * Created by pc on 11/3/2017.
- */
-
+@IgnoreExtraProperties
 public class Room {
     public String id;
     public String title;
@@ -17,6 +17,7 @@ public class Room {
     public long creation_time;
     public List<User> member;
 
+    @Exclude
     public String getFriendString() {
         String friendString = "";
         if(member != null && member.size() > 0) {

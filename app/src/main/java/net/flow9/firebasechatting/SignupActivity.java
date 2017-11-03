@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -32,6 +33,7 @@ public class SignupActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseDatabase database;
     DatabaseReference userRef;
+    //DatabaseReference emailRef;
 
     private EditText editEmail;
     private EditText editPassword;
@@ -51,6 +53,7 @@ public class SignupActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         // 데이터베이스 user 레퍼런스 생성
         userRef = database.getReference("user");
+        //emailRef = database.getReference("email");
 
         initView();
     }
@@ -68,25 +71,36 @@ public class SignupActivity extends AppCompatActivity {
             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(task.isSuccessful()){
-                        // 1. 정상등록시 안내 메일 발송
-                        FirebaseUser fUser = auth.getCurrentUser();
-                        fUser.sendEmailVerification()
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    DialogUtil.showDialog("이메일을 발송하였습니다. 확인해주세요!",SignupActivity.this, true);
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    DialogUtil.showDialog("오류발생:"+e.getMessage(),SignupActivity.this, false);
-                                }
-                        });
-                        // 2. 사용자 등록
-                        User user = new User(fUser.getUid(), name, email, "", birthday, gender, phone);
-                        userRef.child(fUser.getUid()).setValue(user);
-                    }
+                if(task.isSuccessful()){
+
+                    // 1. 정상등록시 사용자 정보 등록
+                    FirebaseUser fUser = auth.getCurrentUser();
+                    UserProfileChangeRequest.Builder profile = new UserProfileChangeRequest.Builder();
+                    profile.setDisplayName(name);
+                    //userBuilder.setPhotoUri("http://사진url");
+                    fUser.updateProfile(profile.build()); // 사용자 정보 등록 listener 사용가능
+
+                    // 2. 정상등록시 안내 메일 발송
+                    fUser.sendEmailVerification()
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                DialogUtil.showDialog("이메일을 발송하였습니다. 확인해주세요!",SignupActivity.this, true);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                DialogUtil.showDialog("오류발생:"+e.getMessage(),SignupActivity.this, false);
+                            }
+                    });
+                    // 3. 사용자 등록
+                    String tempKey = email.replace(".","_");
+                    User user = new User(fUser.getUid(), name, email, "", birthday, gender, phone);
+                    userRef.child(tempKey).setValue(user);
+
+                    //String tempKey = email.replace(".","_");
+                    //emailRef.child(tempKey).child("uid").setValue(fUser.getUid());
+                }
                 }
             })
             .addOnFailureListener(new OnFailureListener() {

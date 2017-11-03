@@ -55,9 +55,9 @@ public class SigninActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
                     FirebaseUser fUser = auth.getCurrentUser();
-                    if(fUser.isEmailVerified()){
+                    //if(fUser.isEmailVerified()){
                         // preference에 값을 저장
-                        PreferenceUtil.setValue(getBaseContext(), "user_id",fUser.getUid());
+                        PreferenceUtil.setValue(getBaseContext(), "user_id",email.replace(".","_"));
                         PreferenceUtil.setValue(getBaseContext(), "email",  email);
                         PreferenceUtil.setValue(getBaseContext(), "password",password);
                         PreferenceUtil.setValue(getBaseContext(), "auto_sign","true");
@@ -66,9 +66,9 @@ public class SigninActivity extends AppCompatActivity {
                         Intent intent = new Intent(SigninActivity.this, RoomListActivity.class);
                         startActivity(intent);
                         finish();
-                    }else{
-                        DialogUtil.showDialog("이메일을 확인하셔야 합니다!",SigninActivity.this, false);
-                    }
+                    //}else{
+                    //    DialogUtil.showDialog("이메일을 확인하셔야 합니다!",SigninActivity.this, false);
+                    //}
                 }
                 }
             }).addOnFailureListener(new OnFailureListener() {
